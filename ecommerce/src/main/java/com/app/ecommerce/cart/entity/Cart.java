@@ -2,10 +2,7 @@ package com.app.ecommerce.cart.entity;
 
 import com.app.ecommerce.auth.entity.User;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -19,6 +16,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @Getter
 @Setter
+@Builder
 public class Cart {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -32,6 +30,7 @@ public class Cart {
     @Column(name = "cart_status")
     private CartStatus cartStatus;
 
+    @Builder.Default
     @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CartItem> cartItems = new ArrayList<>();
 
