@@ -1,0 +1,61 @@
+package com.app.ecommerce.auth.service;
+
+import com.app.ecommerce.auth.dtos.request.UserLoginRequest;
+import com.app.ecommerce.auth.dtos.response.LoginTokenResponse;
+import com.app.ecommerce.auth.entity.RoleEntity;
+import com.app.ecommerce.auth.entity.RoleEnumType;
+import com.app.ecommerce.auth.entity.User;
+import com.app.ecommerce.auth.exceptions.BadRequestException;
+import com.app.ecommerce.auth.repository.RoleRepository;
+import com.app.ecommerce.auth.repository.UserRepository;
+import com.app.ecommerce.auth.security.TokenProvider;
+import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+
+@Service
+@RequiredArgsConstructor
+public class AuthService {
+    private final UserRepository userRepository;
+    private final RoleRepository roleRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final AuthenticationManager authenticationManager;
+    private final TokenProvider tokenProvider;
+
+    @Value("${app.jwt.expiration}")
+    private long expirationTime;
+
+    @Transactional
+    public User register(User user) throws BadRequestException {
+        if (userRepository.findByEmail(user.getEmail()).isPresent()) {
+            throw new BadRequestException("Email already exists");
+        }
+
+        RoleEntity roleEntity = roleRepository.findByName(RoleEnumType.ROLE_DEFAULT_USER.name())
+                .orElseThrow(() -> new RuntimeException("Default role not found"));
+
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        user.getRoles().add(roleEntity);
+        return userRepository.save(user);
+
+    }
+
+    public LoginTokenResponse login(UserLoginRequest request) {
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(request.email(), request.password())
+        );
+        String token = tokenProvider.generateToken(authentication);
+        return LoginTokenResponse
+                .builder()
+                .token(token)
+                .expiresIn(expirationTime)
+                .build();
+
+    }
+}
