@@ -38,6 +38,17 @@ public class AuthController {
         return ResponseEntity.ok(token);
     }
 
+    @PostMapping("/roles/{userEmail}")
+    public ResponseEntity<Void> promoteToAdmin(@PathVariable String userEmail) {
+        authService.promoteUserToAdmin(userEmail);
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/roles/{userEmail}")
+    public ResponseEntity<Boolean> isUserAdmin(@PathVariable String userEmail) {
+        return ResponseEntity.ok(authService.isUserAdmin(userEmail));
+    }
+
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<UserRegisterResponse>> getAll() {

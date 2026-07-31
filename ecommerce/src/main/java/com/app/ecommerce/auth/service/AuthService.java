@@ -9,7 +9,6 @@ import com.app.ecommerce.auth.exceptions.BadRequestException;
 import com.app.ecommerce.auth.repository.RoleRepository;
 import com.app.ecommerce.auth.repository.UserRepository;
 import com.app.ecommerce.auth.security.TokenProvider;
-import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -17,6 +16,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -58,6 +58,32 @@ public class AuthService {
                 .expiresIn(expirationTime)
                 .build();
 
+    }
+
+    @Transactional
+    public void promoteUserToAdmin(String userEmail) {
+        User user = userRepository.findByEmail(userEmail).orElseThrow(
+                () -> new RuntimeException("User not found with email")
+        );
+
+        RoleEntity roleEntity = roleRepository.findByName(RoleEnumType.ROLE_ADMIN.name()).orElseThrow(
+                () -> new RuntimeException("Default role not found")
+        );
+        user.getRoles().add(roleEntity);
+        userRepository.save(user);
+
+    }
+
+    public boolean isUserAdmin(String userEmail) {
+        User user = userRepository.findByEmail(userEmail).orElseThrow(
+                () -> new RuntimeException("User not found with email")
+        );
+
+        RoleEntity roleEntity = roleRepository.findByName(RoleEnumType.ROLE_ADMIN.name()).orElseThrow(
+                () -> new RuntimeException("Default role not found")
+        );
+
+        return user.getRoles().contains(roleEntity);
     }
 
     @Transactional(readOnly = true)
