@@ -66,7 +66,7 @@ public class AuthService {
     @Transactional
     public void promoteUserToAdmin(UUID userId) {
         User user = userRepository.findById(userId).orElseThrow(
-                () -> new RuntimeException("User not found with email")
+                () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found")
         );
 
         RoleEntity roleEntity = roleRepository.findByName(RoleEnumType.ROLE_ADMIN.name()).orElseThrow(

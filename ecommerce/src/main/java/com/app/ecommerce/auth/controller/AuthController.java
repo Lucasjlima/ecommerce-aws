@@ -46,7 +46,7 @@ public class AuthController {
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping("/roles/{userEmail}")
+    @GetMapping("/roles/{userId}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Boolean> isUserAdmin(@PathVariable UUID userId) {
         return ResponseEntity.ok(authService.isUserAdmin(userId));
