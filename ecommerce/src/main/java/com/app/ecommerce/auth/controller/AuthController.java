@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
 import java.util.List;
+import java.util.UUID;
 
 
 @RestController
@@ -34,27 +35,29 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<LoginTokenResponse> login(@RequestBody @Valid UserLoginRequest request) {
-        LoginTokenResponse token =  authService.login(request);
+        LoginTokenResponse token = authService.login(request);
         return ResponseEntity.ok(token);
     }
 
-    @PostMapping("/roles/{userEmail}")
-    public ResponseEntity<Void> promoteToAdmin(@PathVariable String userEmail) {
-        authService.promoteUserToAdmin(userEmail);
+    @PostMapping("/roles/{userId}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Void> promoteToAdmin(@PathVariable UUID userId) {
+        authService.promoteUserToAdmin(userId);
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping("/roles/{userEmail}")
-    public ResponseEntity<Boolean> isUserAdmin(@PathVariable String userEmail) {
-        return ResponseEntity.ok(authService.isUserAdmin(userEmail));
+    @GetMapping("/roles/{userId}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Boolean> isUserAdmin(@PathVariable UUID userId) {
+        return ResponseEntity.ok(authService.isUserAdmin(userId));
     }
 
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<UserRegisterResponse>> getAll() {
         return ResponseEntity.ok(authService.getAllUsers()
-                        .stream()
-                        .map(UserMapper::toResponse)
-                        .toList());
+                .stream()
+                .map(UserMapper::toResponse)
+                .toList());
     }
 }
