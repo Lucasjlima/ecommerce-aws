@@ -11,14 +11,17 @@ import com.app.ecommerce.auth.repository.UserRepository;
 import com.app.ecommerce.auth.security.TokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -61,29 +64,30 @@ public class AuthService {
     }
 
     @Transactional
-    public void promoteUserToAdmin(String userEmail) {
-        User user = userRepository.findByEmail(userEmail).orElseThrow(
-                () -> new RuntimeException("User not found with email")
+    public void promoteUserToAdmin(UUID userId) {
+        User user = userRepository.findById(userId).orElseThrow(
+                () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found")
         );
 
         RoleEntity roleEntity = roleRepository.findByName(RoleEnumType.ROLE_ADMIN.name()).orElseThrow(
-                () -> new RuntimeException("Default role not found")
+                () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Role not found")
         );
         user.getRoles().add(roleEntity);
         userRepository.save(user);
 
     }
 
-    public boolean isUserAdmin(String userEmail) {
-        User user = userRepository.findByEmail(userEmail).orElseThrow(
-                () -> new RuntimeException("User not found with email")
+    public boolean isUserAdmin(UUID userId) {
+        User user = userRepository.findById(userId).orElseThrow(
+                () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found")
         );
 
-        RoleEntity roleEntity = roleRepository.findByName(RoleEnumType.ROLE_ADMIN.name()).orElseThrow(
-                () -> new RuntimeException("Default role not found")
-        );
-
-        return user.getRoles().contains(roleEntity);
+        for (RoleEntity roleEntity : user.getRoles()) {
+            if (roleEntity.getName().equals(RoleEnumType.ROLE_ADMIN.name())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Transactional(readOnly = true)
