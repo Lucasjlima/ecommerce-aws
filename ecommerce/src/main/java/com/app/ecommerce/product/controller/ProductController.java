@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/products")
@@ -24,7 +25,8 @@ public class ProductController {
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ProductResponse> create(@RequestBody @Valid ProductRequest productRequest) {
-        Product product = productService.create(ProductMapper.toEntity(productRequest));
+        UUID categoryId = productRequest.categoryId();
+        Product product = productService.create(ProductMapper.toEntity(productRequest), categoryId);
         return ResponseEntity
                 .created(URI.create("/api/v1/products/" + product.getId()))
                 .body(ProductMapper.toResponse(product));

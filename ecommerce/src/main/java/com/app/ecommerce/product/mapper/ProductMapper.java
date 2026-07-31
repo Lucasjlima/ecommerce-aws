@@ -16,7 +16,6 @@ public class ProductMapper {
                 .description(productRequest.description())
                 .price(productRequest.price())
                 .stockQuantity(productRequest.stockQuantity())
-                .imgKey(productRequest.imgKey())
                 .createdAt(Instant.now())
                 .build();
     }
