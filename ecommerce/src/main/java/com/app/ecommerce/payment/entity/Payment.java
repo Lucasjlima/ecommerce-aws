@@ -27,9 +27,11 @@ public class Payment {
     private Order order;
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "payment_provider", nullable = false)
     private PaymentProvider paymentProvider;
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "payment_status", nullable = false)
     private PaymentStatus paymentStatus;
 
     @Column(name = "transaction_id", nullable = false, unique = true)
