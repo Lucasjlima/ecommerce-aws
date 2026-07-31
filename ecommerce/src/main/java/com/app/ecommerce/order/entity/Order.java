@@ -28,6 +28,7 @@ public class Order {
     private User user;
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "order_status", nullable = false)
     private OrderStatus orderStatus;
 
     @Column(name = "total_amount", nullable = false, precision = 15, scale = 2)
