@@ -37,6 +37,7 @@ public class ProductController {
     }
 
     @PostMapping(value = "/upload/{productId}", consumes = "multipart/form-data")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> uploadImage(@PathVariable UUID productId,
                                             @RequestParam("file") MultipartFile file) throws IOException {
         productImageService.upload(productId, file);
