@@ -1,4 +1,4 @@
-package com.app.ecommerce.auth.exceptions;
+package com.app.ecommerce.shared.exceptions;
 
 public class BadRequestException extends RuntimeException {
     public BadRequestException(String message) {

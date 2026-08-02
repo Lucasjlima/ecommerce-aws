@@ -4,6 +4,7 @@ import com.app.ecommerce.product.entity.Category;
 import com.app.ecommerce.product.entity.Product;
 import com.app.ecommerce.product.repository.CategoryRepository;
 import com.app.ecommerce.product.repository.ProductRepository;
+import com.app.ecommerce.shared.exceptions.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -23,7 +24,7 @@ public class ProductService {
     @Transactional
     public Product create(Product product, UUID categoryId) {
         Category category = categoryRepository.findById(categoryId).orElseThrow(
-                () -> new RuntimeException("Category not found.")
+                () -> new NotFoundException("Category not found.")
         );
         product.setCategory(category);
         return productRepository.save(product);
@@ -37,7 +38,7 @@ public class ProductService {
     @Transactional(readOnly = true)
     public Product findById(UUID id) {
         return productRepository.findById(id).orElseThrow(
-                () -> new RuntimeException("Product not found with id: " + id)
+                () -> new NotFoundException("Product not found with id: " + id)
         );
     }
 }

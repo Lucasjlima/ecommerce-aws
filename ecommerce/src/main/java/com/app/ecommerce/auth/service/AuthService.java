@@ -5,20 +5,19 @@ import com.app.ecommerce.auth.dtos.response.LoginTokenResponse;
 import com.app.ecommerce.auth.entity.RoleEntity;
 import com.app.ecommerce.auth.entity.RoleEnumType;
 import com.app.ecommerce.auth.entity.User;
-import com.app.ecommerce.auth.exceptions.BadRequestException;
+import com.app.ecommerce.shared.exceptions.BadRequestException;
+import com.app.ecommerce.shared.exceptions.NotFoundException;
 import com.app.ecommerce.auth.repository.RoleRepository;
 import com.app.ecommerce.auth.repository.UserRepository;
 import com.app.ecommerce.auth.security.TokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.UUID;
@@ -66,11 +65,11 @@ public class AuthService {
     @Transactional
     public void promoteUserToAdmin(UUID userId) {
         User user = userRepository.findById(userId).orElseThrow(
-                () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found")
+                () -> new NotFoundException("User not found")
         );
 
         RoleEntity roleEntity = roleRepository.findByName(RoleEnumType.ROLE_ADMIN.name()).orElseThrow(
-                () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Role not found")
+                () -> new NotFoundException("Role not found")
         );
         user.getRoles().add(roleEntity);
         userRepository.save(user);
@@ -79,7 +78,7 @@ public class AuthService {
 
     public boolean isUserAdmin(UUID userId) {
         User user = userRepository.findById(userId).orElseThrow(
-                () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found")
+                () -> new NotFoundException("User not found")
         );
 
         for (RoleEntity roleEntity : user.getRoles()) {
