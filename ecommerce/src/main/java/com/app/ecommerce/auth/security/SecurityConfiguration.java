@@ -41,6 +41,7 @@ public class SecurityConfiguration {
                         })))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/v1/auth/roles/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.POST,"/api/v1/products/upload/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.POST, "/api/v1/auth/register").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/v1/auth/login").permitAll()
                         .anyRequest().authenticated())
