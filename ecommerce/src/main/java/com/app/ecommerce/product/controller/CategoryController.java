@@ -2,8 +2,6 @@ package com.app.ecommerce.product.controller;
 
 import com.app.ecommerce.product.dto.request.CategoryRequest;
 import com.app.ecommerce.product.dto.response.CategoryResponse;
-import com.app.ecommerce.product.entity.Category;
-import com.app.ecommerce.product.mapper.CategoryMapper;
 import com.app.ecommerce.product.service.CategoryService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -25,9 +23,9 @@ public class CategoryController {
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public ResponseEntity<CategoryResponse> create(@RequestBody @Valid CategoryRequest categoryRequest) {
-        Category category = categoryService.create(CategoryMapper.toEntity(categoryRequest));
+        CategoryResponse categoryResponse = categoryService.create(categoryRequest);
         return ResponseEntity
-                .created(URI.create("/api/v1/category/" + category.getId()))
-                .body(CategoryMapper.toResponse(category));
+                .created(URI.create("/api/v1/category/" + categoryResponse.id()))
+                .body(categoryResponse);
     }
 }

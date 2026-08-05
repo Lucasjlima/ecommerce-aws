@@ -4,8 +4,6 @@ import com.app.ecommerce.auth.dtos.request.UserLoginRequest;
 import com.app.ecommerce.auth.dtos.request.UserRegisterRequest;
 import com.app.ecommerce.auth.dtos.response.LoginTokenResponse;
 import com.app.ecommerce.auth.dtos.response.UserRegisterResponse;
-import com.app.ecommerce.auth.entity.User;
-import com.app.ecommerce.auth.mapper.UserMapper;
 import com.app.ecommerce.auth.service.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -27,10 +25,10 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<UserRegisterResponse> register(@RequestBody @Valid UserRegisterRequest request) {
-        User user = authService.register(UserMapper.toEntity(request));
+        UserRegisterResponse userRegisterResponse = authService.register(request);
         return ResponseEntity
-                .created(URI.create("/api/v1/auth/" + user.getId()))
-                .body(UserMapper.toResponse(user));
+                .created(URI.create("/api/v1/auth/" + userRegisterResponse.id()))
+                .body(userRegisterResponse);
     }
 
     @PostMapping("/login")
@@ -55,9 +53,6 @@ public class AuthController {
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<UserRegisterResponse>> getAll() {
-        return ResponseEntity.ok(authService.getAllUsers()
-                .stream()
-                .map(UserMapper::toResponse)
-                .toList());
+        return ResponseEntity.ok(authService.getAllUsers());
     }
 }

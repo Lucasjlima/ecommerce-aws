@@ -2,8 +2,6 @@ package com.app.ecommerce.cart.controller;
 
 import com.app.ecommerce.cart.dto.request.CartItemRequest;
 import com.app.ecommerce.cart.dto.response.CartResponse;
-import com.app.ecommerce.cart.entity.Cart;
-import com.app.ecommerce.cart.mapper.CartMapper;
 import com.app.ecommerce.cart.service.CartService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -23,10 +21,10 @@ public class CartController {
 
     @PostMapping
     public ResponseEntity<CartResponse> addProductIntoCart(@RequestBody @Valid CartItemRequest cartItemRequest) {
-        Cart cart = cartService.addProductIntoCart(cartItemRequest);
+        CartResponse cartResponse = cartService.addProductIntoCart(cartItemRequest);
         return ResponseEntity
-                .created(URI.create("/api/v1/cart/" + cart.getId()))
-                .body(CartMapper.toResponse(cart));
+                .created(URI.create("/api/v1/cart/" + cartResponse.cartId()))
+                .body(cartResponse);
     }
 
 }

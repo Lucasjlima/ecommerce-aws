@@ -1,7 +1,10 @@
 package com.app.ecommerce.product.service;
 
+import com.app.ecommerce.product.dto.request.ProductRequest;
+import com.app.ecommerce.product.dto.response.ProductResponse;
 import com.app.ecommerce.product.entity.Category;
 import com.app.ecommerce.product.entity.Product;
+import com.app.ecommerce.product.mapper.ProductMapper;
 import com.app.ecommerce.product.repository.CategoryRepository;
 import com.app.ecommerce.product.repository.ProductRepository;
 import com.app.ecommerce.shared.exceptions.NotFoundException;
@@ -22,17 +25,21 @@ public class ProductService {
     private final CategoryRepository categoryRepository;
 
     @Transactional
-    public Product create(Product product, UUID categoryId) {
-        Category category = categoryRepository.findById(categoryId).orElseThrow(
+    public ProductResponse create(ProductRequest productRequest) {
+        Category category = categoryRepository.findById(productRequest.categoryId()).orElseThrow(
                 () -> new NotFoundException("Category not found.")
         );
+        Product product = ProductMapper.toEntity(productRequest);
         product.setCategory(category);
-        return productRepository.save(product);
+        return ProductMapper.toResponse(productRepository.save(product));
     }
 
     @Transactional(readOnly = true)
-    public List<Product> findAll() {
-        return productRepository.findAll();
+    public List<ProductResponse> findAll() {
+        return productRepository.findAll()
+                .stream()
+                .map(ProductMapper::toResponse)
+                .toList();
     }
 
     @Transactional(readOnly = true)

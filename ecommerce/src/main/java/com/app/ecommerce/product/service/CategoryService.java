@@ -1,6 +1,9 @@
 package com.app.ecommerce.product.service;
 
+import com.app.ecommerce.product.dto.request.CategoryRequest;
+import com.app.ecommerce.product.dto.response.CategoryResponse;
 import com.app.ecommerce.product.entity.Category;
+import com.app.ecommerce.product.mapper.CategoryMapper;
 import com.app.ecommerce.product.repository.CategoryRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -12,7 +15,8 @@ public class CategoryService {
     private final CategoryRepository categoryRepository;
 
     @Transactional
-    public Category create(Category category) {
-        return categoryRepository.save(category);
+    public CategoryResponse create(CategoryRequest categoryRequest) {
+        Category category = CategoryMapper.toEntity(categoryRequest);
+        return CategoryMapper.toResponse(categoryRepository.save(category));
     }
 }
