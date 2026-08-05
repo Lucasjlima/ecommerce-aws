@@ -1,10 +1,13 @@
 package com.app.ecommerce.auth.service;
 
 import com.app.ecommerce.auth.dtos.request.UserLoginRequest;
+import com.app.ecommerce.auth.dtos.request.UserRegisterRequest;
 import com.app.ecommerce.auth.dtos.response.LoginTokenResponse;
+import com.app.ecommerce.auth.dtos.response.UserRegisterResponse;
 import com.app.ecommerce.auth.entity.RoleEntity;
 import com.app.ecommerce.auth.entity.RoleEnumType;
 import com.app.ecommerce.auth.entity.User;
+import com.app.ecommerce.auth.mapper.UserMapper;
 import com.app.ecommerce.shared.exceptions.BadRequestException;
 import com.app.ecommerce.shared.exceptions.NotFoundException;
 import com.app.ecommerce.auth.repository.RoleRepository;
@@ -35,7 +38,8 @@ public class AuthService {
     private long expirationTime;
 
     @Transactional
-    public User register(User user) throws BadRequestException {
+    public UserRegisterResponse register(UserRegisterRequest request) throws BadRequestException {
+        User user = UserMapper.toEntity(request);
         if (userRepository.findByEmail(user.getEmail()).isPresent()) {
             throw new BadRequestException("Email already exists");
         }
@@ -45,7 +49,7 @@ public class AuthService {
 
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         user.getRoles().add(roleEntity);
-        return userRepository.save(user);
+        return UserMapper.toResponse(userRepository.save(user));
 
     }
 
@@ -90,8 +94,11 @@ public class AuthService {
     }
 
     @Transactional(readOnly = true)
-    public List<User> getAllUsers() {
-        return userRepository.findAll();
+    public List<UserRegisterResponse> getAllUsers() {
+        return userRepository.findAll()
+                .stream()
+                .map(UserMapper::toResponse)
+                .toList();
     }
 
 }

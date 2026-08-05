@@ -2,8 +2,6 @@ package com.app.ecommerce.product.controller;
 
 import com.app.ecommerce.product.dto.request.ProductRequest;
 import com.app.ecommerce.product.dto.response.ProductResponse;
-import com.app.ecommerce.product.entity.Product;
-import com.app.ecommerce.product.mapper.ProductMapper;
 import com.app.ecommerce.product.service.ProductImageService;
 import com.app.ecommerce.product.service.ProductService;
 import jakarta.validation.Valid;
@@ -29,11 +27,10 @@ public class ProductController {
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ProductResponse> create(@RequestBody @Valid ProductRequest productRequest) {
-        UUID categoryId = productRequest.categoryId();
-        Product product = productService.create(ProductMapper.toEntity(productRequest), categoryId);
+        ProductResponse productResponse = productService.create(productRequest);
         return ResponseEntity
-                .created(URI.create("/api/v1/products/" + product.getId()))
-                .body(ProductMapper.toResponse(product));
+                .created(URI.create("/api/v1/products/" + productResponse.id()))
+                .body(productResponse);
     }
 
     @PostMapping(value = "/upload/{productId}", consumes = "multipart/form-data")
@@ -46,10 +43,6 @@ public class ProductController {
 
     @GetMapping
     public ResponseEntity<List<ProductResponse>> getAll() {
-        return ResponseEntity
-                .ok(productService.findAll()
-                        .stream()
-                        .map(ProductMapper::toResponse)
-                        .toList());
+        return ResponseEntity.ok(productService.findAll());
     }
 }

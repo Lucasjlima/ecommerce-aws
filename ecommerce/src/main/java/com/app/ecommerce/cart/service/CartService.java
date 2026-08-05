@@ -2,9 +2,11 @@ package com.app.ecommerce.cart.service;
 
 import com.app.ecommerce.auth.security.AuthenticatedUserProvider;
 import com.app.ecommerce.cart.dto.request.CartItemRequest;
+import com.app.ecommerce.cart.dto.response.CartResponse;
 import com.app.ecommerce.cart.entity.Cart;
 import com.app.ecommerce.cart.entity.CartItem;
 import com.app.ecommerce.cart.entity.CartStatus;
+import com.app.ecommerce.cart.mapper.CartMapper;
 import com.app.ecommerce.cart.repository.CartRepository;
 import com.app.ecommerce.product.entity.Product;
 import com.app.ecommerce.product.repository.ProductRepository;
@@ -26,7 +28,7 @@ public class CartService {
     private final AuthenticatedUserProvider authenticatedUserProvider;
 
     @Transactional
-    public Cart addProductIntoCart(CartItemRequest cartItemRequest) {
+    public CartResponse addProductIntoCart(CartItemRequest cartItemRequest) {
         UUID userId = authenticatedUserProvider.getCurrentUserId();
         Product product = productRepository.findById(cartItemRequest.productId()).orElseThrow(
                 () -> new NotFoundException("Product not found.")
@@ -40,7 +42,7 @@ public class CartService {
             for (CartItem items : cartItems) {
                 if (items.getProduct().getId().equals(product.getId())) {
                     items.setQuantity(items.getQuantity() + cartItemRequest.quantity());
-                    return cart;
+                    return CartMapper.toResponse(cart);
                 }
 
             }
@@ -50,7 +52,7 @@ public class CartService {
         newCartItem.setProduct(product);
         newCartItem.setQuantity(cartItemRequest.quantity());
         cartItems.add(newCartItem);
-        return cart;
+        return CartMapper.toResponse(cart);
     }
 
 
