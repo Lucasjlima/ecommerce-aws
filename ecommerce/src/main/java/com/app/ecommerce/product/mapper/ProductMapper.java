@@ -2,6 +2,7 @@ package com.app.ecommerce.product.mapper;
 
 import com.app.ecommerce.product.dto.request.ProductRequest;
 import com.app.ecommerce.product.dto.response.ProductResponse;
+import com.app.ecommerce.product.dto.response.ProductUpdateResponse;
 import com.app.ecommerce.product.entity.Product;
 import lombok.experimental.UtilityClass;
 
@@ -29,6 +30,18 @@ public class ProductMapper {
                 .price(product.getPrice())
                 .stockQuantity(product.getStockQuantity())
                 .categoryId(product.getCategory().getId())
+                .imgKey(product.getImgKey())
+                .build();
+    }
+
+    public static ProductUpdateResponse toUpdateResponse(Product product) {
+        return ProductUpdateResponse.
+                builder()
+                .name(product.getName())
+                .description(product.getDescription())
+                .price(product.getPrice())
+                .stockQuantity(product.getStockQuantity())
+                .categoryResponse(CategoryMapper.toResponse(product.getCategory()))
                 .imgKey(product.getImgKey())
                 .build();
     }
