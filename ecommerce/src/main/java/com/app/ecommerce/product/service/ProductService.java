@@ -53,9 +53,18 @@ public class ProductService {
         return ProductMapper.toUpdateResponse(productRepository.save(product));
     }
 
+    @Transactional
+    public void delete(UUID id) {
+        Product product = productRepository.findById(id).orElseThrow(
+                () -> new NotFoundException("Product not found.")
+        );
+        product.setActive(false);
+        productRepository.save(product);
+    }
+
     @Transactional(readOnly = true)
     public List<ProductResponse> findAll() {
-        return productRepository.findAll()
+        return productRepository.findByActiveTrue()
                 .stream()
                 .map(ProductMapper::toResponse)
                 .toList();
@@ -63,7 +72,7 @@ public class ProductService {
 
     @Transactional(readOnly = true)
     public ProductResponse findById(UUID id) {
-        return ProductMapper.toResponse(productRepository.findById(id).orElseThrow(
+        return ProductMapper.toResponse(productRepository.findByIdAndActiveTrue(id).orElseThrow(
                 () -> new NotFoundException("Product not found.")
         ));
     }

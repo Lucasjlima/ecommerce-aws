@@ -50,6 +50,13 @@ public class ProductController {
         return ResponseEntity.ok(productService.update(id, productUpdateRequest));
     }
 
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Void> delete(@PathVariable UUID id) {
+        productService.delete(id);
+        return ResponseEntity.noContent().build();
+    }
+
     @GetMapping
     public ResponseEntity<List<ProductResponse>> getAll() {
         return ResponseEntity.ok(productService.findAll());
