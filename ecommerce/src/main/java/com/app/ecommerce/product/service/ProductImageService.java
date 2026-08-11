@@ -3,11 +3,12 @@ package com.app.ecommerce.product.service;
 import com.app.ecommerce.aws.service.S3ImageService;
 import com.app.ecommerce.product.entity.Product;
 import com.app.ecommerce.product.repository.ProductRepository;
-import lombok.RequiredArgsConstructor;
 import com.app.ecommerce.shared.exceptions.BadRequestException;
 import com.app.ecommerce.shared.exceptions.NotFoundException;
+import lombok.RequiredArgsConstructor;
 import org.apache.tika.Tika;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -44,7 +45,7 @@ public class ProductImageService {
     }
 
     public String generatePresignedUrl(UUID productId) {
-        Product product = productRepository.findById(productId).orElseThrow(
+        Product product = productRepository.findByIdAndActiveTrue(productId).orElseThrow(
                 () -> new NotFoundException("Product not found")
         );
         return s3ImageService.generatePresignedUrl(product.getImgKey());

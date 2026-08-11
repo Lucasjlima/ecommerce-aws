@@ -30,7 +30,7 @@ public class CartService {
     @Transactional
     public CartResponse addProductIntoCart(CartItemRequest cartItemRequest) {
         UUID userId = authenticatedUserProvider.getCurrentUserId();
-        Product product = productRepository.findById(cartItemRequest.productId()).orElseThrow(
+        Product product = productRepository.findByIdAndActiveTrue(cartItemRequest.productId()).orElseThrow(
                 () -> new NotFoundException("Product not found.")
         );
         Cart cart = cartRepository.findByUserIdAndCartStatusActive(userId).orElseGet(

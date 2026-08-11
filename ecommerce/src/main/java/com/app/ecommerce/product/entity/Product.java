@@ -42,6 +42,10 @@ public class Product {
     @Column(name = "created_at", nullable = false)
     private Instant createdAt;
 
+    @Builder.Default
+    @Column(name = "active", nullable = false)
+    private Boolean active = true;
+
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
