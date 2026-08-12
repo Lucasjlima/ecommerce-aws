@@ -2,10 +2,7 @@ package com.app.ecommerce.cart.entity;
 
 import com.app.ecommerce.product.entity.Product;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.Objects;
 import java.util.UUID;
@@ -16,6 +13,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @Getter
 @Setter
+@Builder
 public class CartItem {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -31,6 +29,10 @@ public class CartItem {
 
     @Column(name = "quantity", nullable = false)
     private Long quantity;
+
+    @Builder.Default
+    @Column(name = "selected", nullable = false)
+    private Boolean selected = true;
 
     @Override
     public boolean equals(Object o) {

@@ -1,7 +1,9 @@
 package com.app.ecommerce.product.controller;
 
 import com.app.ecommerce.product.dto.request.ProductRequest;
+import com.app.ecommerce.product.dto.request.ProductUpdateRequest;
 import com.app.ecommerce.product.dto.response.ProductResponse;
+import com.app.ecommerce.product.dto.response.ProductUpdateResponse;
 import com.app.ecommerce.product.service.ProductImageService;
 import com.app.ecommerce.product.service.ProductService;
 import jakarta.validation.Valid;
@@ -41,8 +43,27 @@ public class ProductController {
         return ResponseEntity.noContent().build();
     }
 
+    @PatchMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<ProductUpdateResponse> update(
+            @PathVariable UUID id, @RequestBody @Valid ProductUpdateRequest productUpdateRequest) {
+        return ResponseEntity.ok(productService.update(id, productUpdateRequest));
+    }
+
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Void> delete(@PathVariable UUID id) {
+        productService.delete(id);
+        return ResponseEntity.noContent().build();
+    }
+
     @GetMapping
     public ResponseEntity<List<ProductResponse>> getAll() {
         return ResponseEntity.ok(productService.findAll());
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<ProductResponse> getById(@PathVariable UUID id) {
+        return ResponseEntity.ok(productService.findById(id));
     }
 }

@@ -6,12 +6,10 @@ import com.app.ecommerce.cart.service.CartService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/cart")
@@ -25,6 +23,22 @@ public class CartController {
         return ResponseEntity
                 .created(URI.create("/api/v1/cart/" + cartResponse.cartId()))
                 .body(cartResponse);
+    }
+
+    @DeleteMapping("/{productId}")
+    public ResponseEntity<CartResponse> removeProductFromCart(@PathVariable UUID productId, @RequestParam Long quantity) {
+        return ResponseEntity.ok(cartService.removeProductFromCart(productId, quantity));
+    }
+
+    @GetMapping
+    public ResponseEntity<CartResponse> getCart() {
+        return ResponseEntity.ok(cartService.getCart());
+    }
+
+    @PatchMapping("/{productId}")
+    public ResponseEntity<Void> toggleSelected(@PathVariable UUID productId) {
+        cartService.toggleSelected(productId);
+        return ResponseEntity.ok().build();
     }
 
 }

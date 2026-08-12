@@ -10,6 +10,7 @@ import com.app.ecommerce.cart.mapper.CartMapper;
 import com.app.ecommerce.cart.repository.CartRepository;
 import com.app.ecommerce.product.entity.Product;
 import com.app.ecommerce.product.repository.ProductRepository;
+import com.app.ecommerce.shared.exceptions.BadRequestException;
 import com.app.ecommerce.shared.exceptions.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -30,10 +31,10 @@ public class CartService {
     @Transactional
     public CartResponse addProductIntoCart(CartItemRequest cartItemRequest) {
         UUID userId = authenticatedUserProvider.getCurrentUserId();
-        Product product = productRepository.findById(cartItemRequest.productId()).orElseThrow(
+        Product product = productRepository.findByIdAndActiveTrue(cartItemRequest.productId()).orElseThrow(
                 () -> new NotFoundException("Product not found.")
         );
-        Cart cart = cartRepository.findByUserIdAndCartStatusActive(userId).orElseGet(
+        Cart cart = cartRepository.findActiveCartByUserIdWithItemsAndProducts(userId).orElseGet(
                 () -> createCart()
         );
 
@@ -51,12 +52,59 @@ public class CartService {
         newCartItem.setCart(cart);
         newCartItem.setProduct(product);
         newCartItem.setQuantity(cartItemRequest.quantity());
+        newCartItem.setSelected(true);
         cartItems.add(newCartItem);
         return CartMapper.toResponse(cart);
     }
 
+    @Transactional
+    public CartResponse removeProductFromCart(UUID productId, Long quantity) {
+        if (quantity == null || quantity <= 0) {
+            throw new BadRequestException("Quantity must be a positive number");
+        }
+        UUID userId = authenticatedUserProvider.getCurrentUserId();
+        Cart cart = cartRepository.findActiveCartByUserIdWithItemsAndProducts(userId).orElseThrow(
+                () -> new NotFoundException("Active cart not found"));
 
-    public Cart createCart() {
+        CartItem item = cart.getCartItems().stream()
+                .filter(ci -> ci.getProduct().getId().equals(productId))
+                .findFirst()
+                .orElseThrow(() -> new NotFoundException("Product not in cart"));
+
+        if (quantity > item.getQuantity()) {
+            throw new BadRequestException("Quantity to remove exceeds quantity in cart");
+        }
+
+        if (quantity.equals(item.getQuantity())) {
+            cart.getCartItems().remove(item);
+        } else {
+            item.setQuantity(item.getQuantity() - quantity);
+        }
+        return CartMapper.toResponse(cart);
+    }
+
+    @Transactional(readOnly = true)
+    public CartResponse getCart() {
+        UUID userId = authenticatedUserProvider.getCurrentUserId();
+        Cart cart = cartRepository.findActiveCartByUserIdWithItemsAndProducts(userId).orElseThrow(
+                () -> new NotFoundException("Active cart not found"));
+        return CartMapper.toResponse(cart);
+    }
+
+    @Transactional
+    public void toggleSelected(UUID productId) {
+        UUID userId = authenticatedUserProvider.getCurrentUserId();
+        Cart cart = cartRepository.findActiveCartByUserIdWithItemsAndProducts(userId).orElseThrow(
+                () -> new NotFoundException("Active cart not found"));
+        CartItem cartItem = cart.getCartItems().stream()
+                .filter(ci -> ci.getProduct().getId().equals(productId))
+                .findFirst()
+                .orElseThrow(() -> new NotFoundException("Product not in cart"));
+        cartItem.setSelected(!cartItem.getSelected());
+    }
+
+
+    private Cart createCart() {
         Cart cart = new Cart();
         cart.setUser(authenticatedUserProvider.getCurrentUser());
         cart.setCartStatus(CartStatus.ACTIVE);
@@ -64,5 +112,7 @@ public class CartService {
         cartRepository.save(cart);
         return cart;
     }
+
+
 }
 
