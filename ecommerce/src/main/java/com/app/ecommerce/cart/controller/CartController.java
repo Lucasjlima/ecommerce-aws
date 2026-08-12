@@ -30,4 +30,9 @@ public class CartController {
         return ResponseEntity.ok(cartService.removeProductFromCart(productId, quantity));
     }
 
+    @GetMapping
+    public ResponseEntity<CartResponse> getCart() {
+        return ResponseEntity.ok(cartService.getCart());
+    }
+
 }
