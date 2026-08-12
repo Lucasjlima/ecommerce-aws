@@ -12,11 +12,13 @@ import java.util.List;
 @UtilityClass
 public class CartMapper {
     public static CartResponse toResponse(Cart cart) {
+        List<CartItemResponse> cartItemResponse = toCartItemResponse(cart.getCartItems());
         return CartResponse
                 .builder()
                 .cartId(cart.getId())
                 .cartStatus(cart.getCartStatus())
-                .cartItemResponse(toCartItemResponse(cart.getCartItems()))
+                .cartItemResponse(cartItemResponse)
+                .total(calculateTotal(cartItemResponse))
                 .build();
 
     }
@@ -34,5 +36,12 @@ public class CartMapper {
                             .build();
                 })
                 .toList();
+    }
+
+    private static BigDecimal calculateTotal(List<CartItemResponse> cartItemResponse) {
+        return cartItemResponse.stream()
+                .filter(ci -> Boolean.TRUE.equals(ci.selected()))
+                .map(CartItemResponse::subtotal)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 }
