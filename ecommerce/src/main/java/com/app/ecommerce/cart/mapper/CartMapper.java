@@ -6,6 +6,7 @@ import com.app.ecommerce.cart.entity.Cart;
 import com.app.ecommerce.cart.entity.CartItem;
 import lombok.experimental.UtilityClass;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @UtilityClass
@@ -22,11 +23,16 @@ public class CartMapper {
 
     private static List<CartItemResponse> toCartItemResponse(List<CartItem> cartItems) {
         return cartItems.stream()
-                .map(cartItem -> CartItemResponse
-                        .builder()
-                        .productId(cartItem.getProduct().getId())
-                        .quantity(cartItem.getQuantity())
-                        .build())
+                .map(cartItem -> {
+                    BigDecimal unitPrice = cartItem.getProduct().getPrice();
+                    return CartItemResponse.builder()
+                            .productId(cartItem.getProduct().getId())
+                            .quantity(cartItem.getQuantity())
+                            .selected(cartItem.getSelected())
+                            .unitPrice(unitPrice)
+                            .subtotal(unitPrice.multiply(BigDecimal.valueOf(cartItem.getQuantity())))
+                            .build();
+                })
                 .toList();
     }
 }

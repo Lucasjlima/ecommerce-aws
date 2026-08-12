@@ -34,7 +34,7 @@ public class CartService {
         Product product = productRepository.findByIdAndActiveTrue(cartItemRequest.productId()).orElseThrow(
                 () -> new NotFoundException("Product not found.")
         );
-        Cart cart = cartRepository.findByUserIdAndCartStatusActive(userId).orElseGet(
+        Cart cart = cartRepository.findActiveCartByUserIdWithItemsAndProducts(userId).orElseGet(
                 () -> createCart()
         );
 
@@ -62,7 +62,7 @@ public class CartService {
             throw new BadRequestException("Quantity must be a positive number");
         }
         UUID userId = authenticatedUserProvider.getCurrentUserId();
-        Cart cart = cartRepository.findByUserIdAndCartStatusActive(userId).orElseThrow(
+        Cart cart = cartRepository.findActiveCartByUserIdWithItemsAndProducts(userId).orElseThrow(
                 () -> new NotFoundException("Active cart not found"));
 
         CartItem item = cart.getCartItems().stream()
@@ -74,11 +74,19 @@ public class CartService {
             throw new BadRequestException("Quantity to remove exceeds quantity in cart");
         }
 
-        if (quantity.equals(item.getQuantity())) {  
+        if (quantity.equals(item.getQuantity())) {
             cart.getCartItems().remove(item);
         } else {
             item.setQuantity(item.getQuantity() - quantity);
         }
+        return CartMapper.toResponse(cart);
+    }
+
+    @Transactional(readOnly = true)
+    public CartResponse getCart() {
+        UUID userId = authenticatedUserProvider.getCurrentUserId();
+        Cart cart = cartRepository.findActiveCartByUserIdWithItemsAndProducts(userId).orElseThrow(
+                () -> new NotFoundException("Active cart not found"));
         return CartMapper.toResponse(cart);
     }
 
