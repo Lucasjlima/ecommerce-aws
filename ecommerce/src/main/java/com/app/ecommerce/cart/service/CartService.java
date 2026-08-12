@@ -52,6 +52,7 @@ public class CartService {
         newCartItem.setCart(cart);
         newCartItem.setProduct(product);
         newCartItem.setQuantity(cartItemRequest.quantity());
+        newCartItem.setSelected(true);
         cartItems.add(newCartItem);
         return CartMapper.toResponse(cart);
     }
@@ -88,6 +89,18 @@ public class CartService {
         Cart cart = cartRepository.findActiveCartByUserIdWithItemsAndProducts(userId).orElseThrow(
                 () -> new NotFoundException("Active cart not found"));
         return CartMapper.toResponse(cart);
+    }
+
+    @Transactional
+    public void toggleSelected(UUID productId) {
+        UUID userId = authenticatedUserProvider.getCurrentUserId();
+        Cart cart = cartRepository.findActiveCartByUserIdWithItemsAndProducts(userId).orElseThrow(
+                () -> new NotFoundException("Active cart not found"));
+        CartItem cartItem = cart.getCartItems().stream()
+                .filter(ci -> ci.getProduct().getId().equals(productId))
+                .findFirst()
+                .orElseThrow(() -> new NotFoundException("Product not in cart"));
+        cartItem.setSelected(!cartItem.getSelected());
     }
 
 

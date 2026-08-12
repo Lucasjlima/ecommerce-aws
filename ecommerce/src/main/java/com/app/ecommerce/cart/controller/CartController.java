@@ -25,7 +25,7 @@ public class CartController {
                 .body(cartResponse);
     }
 
-    @PutMapping("/{productId}")
+    @DeleteMapping("/{productId}")
     public ResponseEntity<CartResponse> removeProductFromCart(@PathVariable UUID productId, @RequestParam Long quantity) {
         return ResponseEntity.ok(cartService.removeProductFromCart(productId, quantity));
     }
@@ -33,6 +33,12 @@ public class CartController {
     @GetMapping
     public ResponseEntity<CartResponse> getCart() {
         return ResponseEntity.ok(cartService.getCart());
+    }
+
+    @PatchMapping("/{productId}")
+    public ResponseEntity<Void> toggleSelected(@PathVariable UUID productId) {
+        cartService.toggleSelected(productId);
+        return ResponseEntity.ok().build();
     }
 
 }
