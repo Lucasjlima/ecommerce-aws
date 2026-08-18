@@ -35,6 +35,10 @@ public class CartItem {
     @Column(name = "selected", nullable = false)
     private Boolean selected = true;
 
+    public boolean isUnselected() {
+        return Boolean.FALSE.equals(selected);
+    }
+
     public boolean isSelected() {
         return Boolean.TRUE.equals(selected);
     }

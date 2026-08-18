@@ -39,7 +39,13 @@ public class Cart {
     @Column(name = "created_at", nullable = false)
     private Instant createdAt;
 
-    // Cart — getter puro, sem throw
+    public List<CartItem> getUnselectedItems() {
+        return cartItems.stream()
+                .filter(CartItem::isUnselected)
+                .toList();
+    }
+
+
     public List<CartItem> getSelectedItems() {
         return cartItems.stream()
                 .filter(CartItem::isSelected)

@@ -1,5 +1,6 @@
 package com.app.ecommerce.cart.mapper;
 
+import com.app.ecommerce.cart.dto.request.CartItemRequest;
 import com.app.ecommerce.cart.dto.response.CartItemResponse;
 import com.app.ecommerce.cart.dto.response.CartResponse;
 import com.app.ecommerce.cart.entity.Cart;

@@ -58,6 +58,20 @@ public class CartService {
     }
 
     @Transactional
+    public void createCartAndAddUnselectedItems(List<CartItem> unselectedItems) {
+        if (unselectedItems.isEmpty()) return;
+        Cart newCart = createCart();
+        for (CartItem old : unselectedItems) {
+            CartItem copy = new CartItem();
+            copy.setCart(newCart);
+            copy.setProduct(old.getProduct());
+            copy.setQuantity(old.getQuantity());
+            copy.setSelected(false);
+            newCart.getCartItems().add(copy);
+        }
+    }
+
+    @Transactional
     public CartResponse removeProductFromCart(UUID productId, Long quantity) {
         if (quantity == null || quantity <= 0) {
             throw new BadRequestException("Quantity must be a positive number");
