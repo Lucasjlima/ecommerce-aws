@@ -3,6 +3,7 @@ package com.app.ecommerce.messaging.config;
 import org.springframework.amqp.core.*;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.amqp.support.converter.DefaultJacksonJavaTypeMapper;
 import org.springframework.amqp.support.converter.JacksonJsonMessageConverter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -11,9 +12,6 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class RabbitMQConfig {
-
-    @Value("${app.rabbitmq.stock.queue}")
-    private String stockQueue;
 
     @Value("${app.rabbitmq.email.queue}")
     private String emailQueue;
@@ -41,13 +39,6 @@ public class RabbitMQConfig {
     }
 
     //CRIAÇÃO DAS FILAS (QUEUES) E CONFIGURAÇÃO DE DEAD LETTER EXCHANGE
-    @Bean
-    public Queue stockQueue() {
-        return QueueBuilder.durable(stockQueue)
-                .withArgument("x-dead-letter-exchange", dlxExchange)
-                .withArgument("x-dead-letter-routing-key", dlqRoutingKey)
-                .build();
-    }
 
     @Bean
     public Queue emailQueue() {
@@ -67,10 +58,6 @@ public class RabbitMQConfig {
 
 
     //CRIACAO DOS BINDINGS (CONECTA QUEUE COM EXCHANGE)
-    @Bean
-    public Binding stockBinding(Queue stockQueue, TopicExchange orderExchange) {
-        return BindingBuilder.bind(stockQueue).to(orderExchange).with(orderPaidRoutingKey);
-    }
 
     @Bean
     public Binding emailBinding(Queue emailQueue, TopicExchange orderExchange) {
@@ -84,7 +71,13 @@ public class RabbitMQConfig {
 
     @Bean
     public JacksonJsonMessageConverter jsonMessageConverter() {
-        return new JacksonJsonMessageConverter();
+
+        JacksonJsonMessageConverter converter = new JacksonJsonMessageConverter();
+        DefaultJacksonJavaTypeMapper typeMapper = new DefaultJacksonJavaTypeMapper();
+
+        typeMapper.addTrustedPackages("com.app.ecommerce.messaging.dto");
+        converter.setJavaTypeMapper(typeMapper);
+        return converter;
     }
 
     @Bean

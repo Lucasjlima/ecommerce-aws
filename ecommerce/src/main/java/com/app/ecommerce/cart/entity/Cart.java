@@ -1,9 +1,11 @@
 package com.app.ecommerce.cart.entity;
 
 import com.app.ecommerce.auth.entity.User;
+import com.app.ecommerce.shared.exceptions.BadRequestException;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -36,6 +38,25 @@ public class Cart {
 
     @Column(name = "created_at", nullable = false)
     private Instant createdAt;
+
+    public List<CartItem> getUnselectedItems() {
+        return cartItems.stream()
+                .filter(CartItem::isUnselected)
+                .toList();
+    }
+
+
+    public List<CartItem> getSelectedItems() {
+        return cartItems.stream()
+                .filter(CartItem::isSelected)
+                .toList();
+    }
+
+    public BigDecimal calculateSelectedItemsTotal() {
+        return getSelectedItems().stream()
+                .map(CartItem::calculateSubtotal)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
 
     @Override
     public boolean equals(Object o) {

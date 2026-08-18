@@ -2,7 +2,9 @@ package com.app.ecommerce.cart.repository;
 
 import com.app.ecommerce.cart.entity.Cart;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
@@ -16,4 +18,9 @@ public interface CartRepository extends JpaRepository<Cart, UUID> {
             "LEFT JOIN FETCH ci.product " +
             "WHERE c.user.id = :userId AND c.cartStatus = 'ACTIVE'")
     Optional<Cart> findActiveCartByUserIdWithItemsAndProducts(UUID userId);
+
+    @Modifying
+    @Query("UPDATE Cart c SET  c.cartStatus = 'CONVERTED' WHERE c.id = :cartId AND c.cartStatus = 'ACTIVE'")
+    int convertCartStatusToConverted(@Param("cartId") UUID cartId);
+
 }
