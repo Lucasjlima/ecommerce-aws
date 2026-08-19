@@ -74,9 +74,13 @@ public class PaymentService {
         order.setOrderStatus(OrderStatus.PAID);
         cartService.createCartAndAddUnselectedItems(unselectedItems);
 
+        String userEmail = order.getUser().getEmail();
+        String userName = order.getUser().getName();
         eventPublisher.publishEvent(new OrderPaidEvent(
                 order.getId(),
                 userId,
+                userEmail,
+                userName,
                 OrderMapper.toSnapshot(order.getOrderItems()), order.getTotalAmount()));
 
         return PaymentMapper.toResponse(createPayment(
