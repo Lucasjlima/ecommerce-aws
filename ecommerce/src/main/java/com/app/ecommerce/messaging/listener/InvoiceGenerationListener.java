@@ -1,17 +1,16 @@
 package com.app.ecommerce.messaging.listener;
 
-import lombok.RequiredArgsConstructor;
+import com.app.ecommerce.messaging.dto.OrderPaidEvent;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Component;
 
 @Component
-@RequiredArgsConstructor
+@Slf4j
 public class InvoiceGenerationListener {
 
-    //INJETAR O SERVICE AQUI NO FUTURO
-
     @RabbitListener(queues = "${app.rabbitmq.invoice.queue}")
-    public void onInvoiceGeneration() {
-        //METODO DO SERVICE E PUBLISH AQUI DENTRO.
+    public void onInvoiceGeneration(OrderPaidEvent orderPaidEvent) {
+        log.info("Invoice generation requested for order {}", orderPaidEvent.orderId());
     }
 }

@@ -15,11 +15,6 @@ public class OrderEventListener {
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void onOrderPaid(OrderPaidEvent orderPaidEvent) {
-        publisher.publish(
-                orderPaidEvent.orderId(),
-                orderPaidEvent.userId(),
-                orderPaidEvent.orderItems(),
-                orderPaidEvent.totalAmount()
-        );
+        publisher.publish(orderPaidEvent);
     }
 }
