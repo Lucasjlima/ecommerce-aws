@@ -27,4 +27,21 @@ jobs:
           tags: |
             ${{ secrets.DOCKERHUB_USERNAME }}/ecommerce:latest
             ${{ secrets.DOCKERHUB_USERNAME }}/ecommerce:${{ github.sha }} 
+  
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: SSH Login & Deploy to EC2
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            cd /home/ubuntu
+            docker compose -f docker-compose-ec2.yml pull ${{ secrets.DOCKERHUB_USERNAME }}/ecommerce:latest
+            docker compose -f docker-compose-ec2.yml up -d
+
 
