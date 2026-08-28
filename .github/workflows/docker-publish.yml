@@ -41,7 +41,7 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
             cd /home/ubuntu
-            docker compose -f docker-compose-ec2.yml pull ${{ secrets.DOCKERHUB_USERNAME }}/ecommerce:latest
+            docker compose -f docker-compose-ec2.yml pull app
             docker compose -f docker-compose-ec2.yml up -d
 
 
